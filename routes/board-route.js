@@ -51,6 +51,7 @@ router.get('/view/:id', async (req, res, next) => {
 		where: {op: 'and', field:[['bid', rs[0].id],['ip', ip.getClientIp(req)]]}
 	}
 	rs2 = await sql(next, 'board_ip', 'S', opt);
+	console.log(rs2);
 
 	// 현재 아이피 정보 남기기.
 	opt = {field: ['bid', 'ip'], data: {bid: req.params.id, ip: ip.getClientIp(req)}}

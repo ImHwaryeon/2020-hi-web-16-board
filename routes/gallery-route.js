@@ -21,12 +21,11 @@ const pugs = {
 router.post('/update', isUser, uploadImg.array('upfile'), async (req, res, next) => {
 	try {
 		let sql, rs, r, value;
-		let delfile = JSON.parse(req.body.delfile);
+		let delfile = req.body.delFile ? JSON.parse(req.body.delfile) : null;
 		for(let v of req.files) {
-			let id = _.find(delfile, {name: v.originalname}).id;
+			id = _.find(delfile, {name: v.originalname}) ? _.find(delfile, {name: v.originalname}).id : null;
 			if(id) {
 				sql = 'SELECT savefile FROM gallery_file WHERE id='+id;
-				console.log(sql);
 				r = await pool.query(sql);
 				await fs.remove(realPath(r[0][0].savefile));
 				sql = 'DELETE FROM gallery_file WHERE id='+id;
@@ -44,6 +43,7 @@ router.post('/update', isUser, uploadImg.array('upfile'), async (req, res, next)
 		res.redirect('/gallery');
 	}
 	catch(e) {
+		console.log(e);
 		next(err(e.message || e));
 	}
 });
