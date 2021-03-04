@@ -13,7 +13,23 @@ const router = express.Router();
 router.get('/list', async (req, res, next) => {
 	try {
 		let sql, value, r, rs;
-		sql = 'SELET * FROM board ORDER BY id DESC';
+		sql = 'SELECT * FROM board ORDER BY id DESC';
+		r = await pool.query(sql);
+		rs = r[0].map(v => {
+			v.src = v.savefile ? srcPath(v.savefile) : null
+			return v
+		})
+		res.json(rs);
+	}
+	catch(e) {
+		res.json(e || e.message);
+	}
+});
+
+router.get('/view/:id', async (req, res, next) => {
+	try {
+		let sql, value, r, rs;
+		sql = 'SELECT * FROM board WHERE id='+req.params.id;
 		r = await pool.query(sql);
 		res.json(r[0]);
 	}
@@ -21,5 +37,19 @@ router.get('/list', async (req, res, next) => {
 		res.json(e || e.message);
 	}
 });
+
+router.get('/download/:id', async (req, res, next) => {
+	try {
+		let sql, r, filePath;
+		sql = 'SELECT orifile, savefile FROM board WHERE id='+req.params.id;
+		r = await pool.query(sql);
+		filePath = realPath(r[0][0].savefile);
+		res.download(filePath, r[0][0].orifile);
+	}
+	catch(e) {
+		res.json(e || e.message);
+	}
+});
+
 
 module.exports = router;
